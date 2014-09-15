@@ -52,3 +52,52 @@ T Table_new(int hint,
 	return table;
 }
 
+void *Table_get(T table, const void *key){
+	int i ;
+	struct bind *p;
+	assert(table);
+	assert(key);
+
+	//search table for key
+	i = (*table->hash)(key) % table->size;
+	for(p = table->buckets[i]; p; p = p->link)
+		if((*table->cmp)(key, p->key) == 0)
+			break;
+
+	return p ? p->value : NULL;
+}
+
+void *Table_put(T table, const void *key, void *value){
+	int i;
+	struct binding *p;
+	void *prev;
+
+	assert(table);
+	assert(key);
+
+	//search table for key
+	i = (*table->hash)(key) % table->size;
+	for(p = table->buckets[i]; p; p = p->link)
+		if((*table->cmp)(key, p->key) == 0)
+			break;
+	if( p == NULL){
+		NEW(p);
+		p->key = key;
+		p->link = table->buckets[i];
+		table->buckets[i] = p;
+		table->length ++;
+	}else{
+		p->value = value;
+	}
+
+	return p;
+}
+
+
+
+
+
+
+
+
+
