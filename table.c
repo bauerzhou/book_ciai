@@ -136,8 +136,42 @@ void *Table_remove(T table, const void *key){
 }
 
 void **Table_toArray(T table, void *end){
-	
+	int i, j = 0;
+	void *array;
+	struct binding *p;
+	assert(table);
+
+	array = ALLOC((2*table->length + 1) * sizeof (*array));
+	for (i = 0; i < table->size; i++){
+		for (p = table->buckets[i]; p; p = p->link) {
+			array[j++] = (void *)p->key;
+			array[j++] = p->value;
+		}
+	}
+	array[j] = end;
+	return array;
 }
+
+void Table_free(T *table){
+	assert(table && *table);
+	if ((*table)->length > 0){
+		int i;
+		struct binding *p, *q;
+		for (i=0; i < (*table)->size; i++){
+			for (p = (*table)->buckets[i]; p; p = q){
+				q = p->link;
+				FREE(p);
+			}
+		}
+	}
+	FREE(*table);
+}
+
+
+
+
+
+
 
 
 
