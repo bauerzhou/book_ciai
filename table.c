@@ -93,6 +93,57 @@ void *Table_put(T table, const void *key, void *value){
 	return p;
 }
 
+int Table_length(T table){
+	assert(table)
+	return table->length
+}
+
+void Table_map(T table,
+		void apply(const void *key, void **value, void *cl)),
+		void *cl){
+	int i;
+	unsigned stamp;
+	struct binding *p;
+
+	assert(table);
+	assert(apply);
+	stamp = table->timestamp;
+	for(i = 0; i < table->size; i++){
+		for (p=table->buckets[i]; p; p = p->link){
+			apply(p->key, &p->value, cl);
+			assert(table->timestamp == stamp);
+		}
+	}
+
+}
+
+void *Table_remove(T table, const void *key){
+	int i;
+	struct binding **pp;
+	assert(table);
+	assert(key);
+	i = (*table->hash)(key % table->size);
+	for(pp = &table->buckets[i]; *pp; pp = &(*pp)->link)
+		if ((*table->cmp)(key, (*pp)->key) == 0) {
+			struct binding *p = *pp;
+			void *value = p->value;
+			pp = p->link;
+			free(p);
+			table->length --;
+			return value;
+		}
+	return NULL;
+}
+
+void **Table_toArray(T table, void *end){
+	
+}
+
+
+
+
+
+
 
 
 
